@@ -1,0 +1,5 @@
+# Build output directories
+cmake-build-debug/
+
+# JetBrains / CLion project settings
+.idea/
