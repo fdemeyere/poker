@@ -66,16 +66,36 @@ const std::array<Card, 7> one_pair {
 };
 
 const std::array<Card, 7> high_card {
-    Card{Suit::clubs, Rank::ace}, Card{Suit::spades, Rank::ten},
-    Card{Suit::diamonds, Rank::jack}, Card{Suit::clubs, Rank::five},
-    Card{Suit::clubs, Rank::eight}, Card{Suit::hearts, Rank::two},
+    Card{Suit::clubs, Rank::ace}, Card{Suit::spades, Rank::jack},
+    Card{Suit::diamonds, Rank::ten}, Card{Suit::clubs, Rank::eight},
+    Card{Suit::clubs, Rank::five}, Card{Suit::hearts, Rank::two},
     Card{Suit::hearts, Rank::three}
 };
+
+const std::array<Card, 7> ace_low_straight_flush {
+    Card{Suit::diamonds, Rank::five}, Card{Suit::diamonds, Rank::four},
+    Card{Suit::diamonds, Rank::three}, Card{Suit::diamonds, Rank::two},
+    Card{Suit::diamonds, Rank::ace}, Card{Suit::hearts, Rank::two},
+    Card{Suit::hearts, Rank::three}
+};
+
+const std::array<Card, 7> double_three_full_house {
+    Card{Suit::diamonds, Rank::five}, Card{Suit::spades, Rank::five},
+    Card{Suit::hearts, Rank::five}, Card{Suit::hearts, Rank::two},
+    Card{Suit::clubs, Rank::two}, Card{Suit::spades, Rank::two},
+    Card{Suit::hearts, Rank::ace}
+};
+
+
 
 TEST(HandEvaluationTest, HandEvaluator_RoyalFlush_CorrectHandSh) {
     const uint32_t hand_sh = get_hand_sh(royal_flush);
     EXPECT_EQ(HandType::royal_flush, static_cast<HandType>(hand_sh >> 20));
-    EXPECT_EQ(0, hand_sh & 0xFFFFF);
+
+    std::array<Rank, 5> found_ranks = get_ranks_from_hand_sh(hand_sh);
+    for (int i {0}; i < 5; ++i) {
+        EXPECT_EQ(royal_flush[i].rank, found_ranks[i]);
+    }
 }
 
 TEST(HandEvaluationTest, HandEvaluator_StraightFlush_CorrectHandSh) {
@@ -166,5 +186,25 @@ TEST(HandEvaluationTest, HandEvaluator_HighCard_CorrectHandSh) {
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
     for (int i {0}; i < 5; ++i) {
         EXPECT_EQ(high_card[i].rank, found_ranks[i]);
+    }
+}
+
+TEST(HandEvaluationTest, HandEvaluator_AceLowStraightFlush_CorrectHandSh) {
+    const uint32_t hand_sh = get_hand_sh(ace_low_straight_flush);
+    EXPECT_EQ(HandType::straight_flush, static_cast<HandType>(hand_sh >> 20));
+
+    const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
+    for (int i {0}; i < 5; ++i) {
+        EXPECT_EQ(ace_low_straight_flush[i].rank, found_ranks[i]);
+    }
+}
+
+TEST(HandEvaluationTest, HandEvaluator_DoubleThreeFullHouse_CorrectHandSh) {
+    const uint32_t hand_sh = get_hand_sh(double_three_full_house);
+    EXPECT_EQ(HandType::full_house, static_cast<HandType>(hand_sh >> 20));
+
+    const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
+    for (int i {0}; i < 5; ++i) {
+        EXPECT_EQ(double_three_full_house[i].rank, found_ranks[i]);
     }
 }
