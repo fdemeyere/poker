@@ -29,6 +29,8 @@ add_executable(HandEvaluation_test
         Deck.h
         HandEvaluation.cpp
         HandEvaluation.h
+        Player.cpp
+        Player.h
 )
 
 target_link_libraries(
