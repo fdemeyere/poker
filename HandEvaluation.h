@@ -28,21 +28,10 @@ std::string_view get_hand_type_str(HandType type);
 
 HandType get_type_from_hand_sh(uint32_t hand);
 
-uint64_t get_cards_ext(const std::array<Card, 7>& cards);
-
 std::array<Rank, 5> get_ranks_from_hand_sh(uint32_t hand);
-
-uint16_t spades(uint64_t mask);
-
-uint16_t hearts(uint64_t mask);
-
-uint16_t clubs(uint64_t mask);
-
-uint16_t diamonds(uint64_t mask);
 
 uint32_t get_hand_sh(const std::array<Card, 7>& cards);
 
-void print_hand_ext(uint64_t mask);
 void print_hand_sh(uint32_t mask);
 
 
