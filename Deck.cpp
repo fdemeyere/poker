@@ -9,7 +9,6 @@
 #include <optional>
 #include <array>
 #include <ranges>
-#include <cstddef> // for std::size_t
 
 std::string_view get_rank_name(const Rank rank) {
     using enum Rank;
@@ -84,11 +83,9 @@ bool operator!=(const Card& card1, const Card& card2) {
 }
 
 Deck::Deck() : m_gen {std::random_device{}()} {
-    m_deck.reserve(ranks.size() * suits.size());
-
-    for (const Rank rank : ranks) {
-        for (const Suit suit : suits) {
-            m_deck.push_back(Card {suit, rank});
+    for (int i {}; i < ranks.size(); ++i) {
+        for (int j {}; j < suits.size(); ++j) {
+            m_deck[4*i + j] = Card {suits[j], ranks[i]};
         }
     }
 }
@@ -100,18 +97,12 @@ void Deck::shuffle() {
 }
 
 std::optional<Card> Deck::pop_card() {
-    if (m_deck.empty()) {
+    if (m_len == 0) {
         return std::nullopt;
     }
-    const Card last_card {m_deck.back()};
-    m_deck.pop_back();
-    return last_card;
+    return m_deck[m_len-- - 1];
 }
 
 bool Deck::is_empty() const {
-    return m_deck.empty();
-}
-
-std::size_t Deck::size() const {
-    return m_deck.size();
+    return m_len == 0;
 }

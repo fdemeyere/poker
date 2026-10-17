@@ -66,15 +66,21 @@ bool operator== (const Card& card1, const Card& card2);
 class Deck {
 public:
     Deck();
-    const std::vector<Card>& get_deck() const {
+    const std::array<Card, 52>& get_deck() const {
         return m_deck;
     }
+
+    const int get_len() const {
+        return m_len;
+    }
+
     std::optional<Card> pop_card();
     void shuffle();
     bool is_empty() const;
-    std::size_t size() const;
+
 private:
-    std::vector<Card> m_deck;
+    std::array<Card, 52> m_deck;
+    int m_len {52};
     std::mt19937 m_gen;
 };
 
