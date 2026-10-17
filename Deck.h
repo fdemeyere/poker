@@ -14,7 +14,7 @@
 #include <cstddef> // for std::size_t
 
 enum class Rank {
-    two,
+    two = 2,
     three,
     four,
     five,
@@ -30,7 +30,7 @@ enum class Rank {
 };
 
 enum class Suit {
-    spades,
+    spades = 0,
     hearts,
     clubs,
     diamonds,
@@ -47,15 +47,18 @@ inline constexpr std::array suits {
 };
 
 struct Card {
-    Rank rank;
-    Suit suit;
+    Card(Suit suit, Rank rank);
+    Rank rank; // 2,3,4,5,6,7,8,9,10,11,12,13,14
+    Suit suit; // 0,1,2,3
+
+    Card() = default;
 };
 
-std::string_view get_rank_name(const Rank rank);
-std::string_view get_suit_name(const Suit suit);
+std::string_view get_rank_name(Rank rank);
+std::string_view get_suit_name(Suit suit);
 
-std::ostream& operator<< (std::ostream& out, const Rank rank);
-std::ostream& operator<< (std::ostream& out, const Suit suit);
+std::ostream& operator<< (std::ostream& out, Rank rank);
+std::ostream& operator<< (std::ostream& out, Suit suit);
 std::ostream& operator<< (std::ostream& out, const Card& card);
 
 bool operator== (const Card& card1, const Card& card2);

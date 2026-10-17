@@ -28,7 +28,7 @@ std::string_view get_rank_name(const Rank rank) {
         case queen: return "queen";
         case king: return "king";
         case ace: return "ace";
-        default: return "???";
+        default: return "none";
     }
 }
 
@@ -40,7 +40,7 @@ std::string_view get_suit_name(const Suit suit) {
         case hearts: return "hearts";
         case clubs: return "clubs";
         case diamonds: return "diamonds";
-        default: return "???";
+        default: return "none";
     }
 }
 
@@ -63,15 +63,37 @@ bool operator== (const Card& card1, const Card& card2) {
     return card1.rank == card2.rank && card1.suit == card2.suit;
 }
 
+bool operator< (const Card& card1, const Card& card2) {
+    return card1.rank < card2.rank;
+}
+
+bool operator> (const Card& card1, const Card& card2) {
+    return card1.rank > card2.rank;
+}
+
+bool operator>=(const Card& card1, const Card& card2) {
+    return card1.rank >= card2.rank;
+}
+
+bool operator<=(const Card& card1, const Card& card2) {
+    return card1.rank <= card2.rank;
+}
+
+bool operator!=(const Card& card1, const Card& card2) {
+    return card1.rank != card2.rank;
+}
+
 Deck::Deck() : m_gen {std::random_device{}()} {
     m_deck.reserve(ranks.size() * suits.size());
 
     for (const Rank rank : ranks) {
         for (const Suit suit : suits) {
-            m_deck.push_back(Card {rank, suit});
+            m_deck.push_back(Card {suit, rank});
         }
     }
 }
+
+Card::Card(Suit suit, Rank rank) : rank {rank}, suit {suit} {}
 
 void Deck::shuffle() {
     std::ranges::shuffle(m_deck, m_gen);
