@@ -8,6 +8,7 @@
 #include <string_view>
 #include <bit>
 #include <bitset>
+#include <charconv>
 
 namespace {
     uint16_t hearts(const uint64_t mask) {
@@ -72,6 +73,34 @@ void print_hand_sh(const uint32_t mask) {
     std::cout << "32 bit hand repr: " << std::bitset<32>(mask) << "\n";
 }
 
+uint64_t get_card_ext(const std::string &card_str) {
+    uint16_t rank {};
+    uint16_t suit {};
+
+    auto [ptr, ec] = std::from_chars(card_str.data(), card_str.data() + card_str.size(), rank);
+    switch (*ptr) {
+        case 's':
+            suit = 0;
+            break;
+        case 'h':
+            suit = 1;
+            break;
+        case 'c':
+            suit = 2;
+            break;
+        case 'd':
+            suit = 3;
+            break;
+        default:
+            throw "Couldn't create card_ext, suit not found";
+    }
+    if (rank < 2 || rank > 14) {
+        throw "Couldn't create card_ext, rank not found";
+    }
+
+    return (1ULL << rank) << suit * 16;
+}
+
 // function taking in a 32 bit hand representation and returning just the HandType
 HandType get_type_from_hand_sh(const uint32_t hand) {
     return static_cast<HandType>(hand >> 20);
@@ -87,17 +116,29 @@ std::array<Rank, 5> get_ranks_from_hand_sh(const uint32_t hand) {
     return res;
 }
 
+bool user_is_winner(const std::array<uint64_t, 4>& pockets, const uint64_t community_cards) {
+    std::array<uint32_t, 4> hands_sh;
+    for (int i {}; i < pockets.size(); ++i) {
+        hands_sh[i] = get_hand_sh(pockets[i] | community_cards);
+    }
+
+    for (int i {1}; i < 4; ++i) {
+        if (hands_sh[i] > hands_sh[0]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /*  hand_sh: ranks stored by value
     [31-20 = HandType 0-9][19-16 = 1st rank][15-12 = 2nd rank][11-8 = 3rd rank][7-4 = 4th rank][3-0 = 5th rank]
 */
-uint32_t get_hand_sh(const std::array<Card, 7>& cards) {
+uint32_t get_hand_sh(const uint64_t& cards) {
 
-    const uint64_t mask64 = get_cards_ext(cards);
-
-    const uint16_t s {spades(mask64)};
-    const uint16_t h {hearts(mask64)};
-    const uint16_t c {clubs(mask64)};
-    const uint16_t d {diamonds(mask64)};
+    const uint16_t s {spades(cards)};
+    const uint16_t h {hearts(cards)};
+    const uint16_t c {clubs(cards)};
+    const uint16_t d {diamonds(cards)};
 
     const std::array suit_masks {s, h, c, d};
 

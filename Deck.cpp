@@ -3,14 +3,12 @@
 //
 
 #include "Deck.h"
+#include "HandEvaluation.h"
 #include <iostream>
 #include <algorithm>
 #include <random>
-#include <optional>
-#include <array>
-#include <ranges>
 
-std::string_view get_rank_name(const Rank rank) {
+std::string get_rank_name(const Rank rank) {
     using enum Rank;
 
     switch (rank) {
@@ -31,7 +29,7 @@ std::string_view get_rank_name(const Rank rank) {
     }
 }
 
-std::string_view get_suit_name(const Suit suit) {
+std::string get_suit_name(const Suit suit) {
     using enum Suit;
 
     switch (suit) {
@@ -83,26 +81,40 @@ bool operator!=(const Card& card1, const Card& card2) {
 }
 
 Deck::Deck() : m_gen {std::random_device{}()} {
-    for (int i {}; i < ranks.size(); ++i) {
-        for (int j {}; j < suits.size(); ++j) {
-            m_deck[4*i + j] = Card {suits[j], ranks[i]};
+    reset();
+}
+
+uint64_t Deck::pop(const int num) {
+    uint64_t res {};
+    for (int i {}; i < num; ++i) {
+        std::uniform_int_distribution<> distrib(1, size());
+        const int count { distrib(m_gen)};
+        uint64_t deck_copy {m_deck};
+
+        for (int j {}; j < count - 1; ++j) {
+            deck_copy &= deck_copy - 1;
         }
+
+        const uint64_t card = deck_copy & ~deck_copy + 1;
+        m_deck ^= card;
+        res |= card;
     }
+    return res;
 }
 
-Card::Card(Suit suit, Rank rank) : rank {rank}, suit {suit} {}
-
-void Deck::shuffle() {
-    std::ranges::shuffle(m_deck, m_gen);
+void Deck::remove(const std::string& card_str) {
+    const uint64_t card {get_card_ext(card_str)};
+    m_deck ^= card;
 }
 
-std::optional<Card> Deck::pop_card() {
-    if (m_len == 0) {
-        return std::nullopt;
-    }
-    return m_deck[m_len-- - 1];
+void Deck::remove(const uint64_t cards) {
+    m_deck ^= cards;
 }
 
-bool Deck::is_empty() const {
-    return m_len == 0;
+void Deck::reset() {
+    m_deck = 0x7FFC7FFC7FFC7FFCULL;
+}
+
+int Deck::size() const {
+    return std::popcount(m_deck);
 }

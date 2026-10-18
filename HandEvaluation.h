@@ -8,6 +8,7 @@
 #include "Deck.h"
 #include <ostream>
 #include <cinttypes>
+#include <span>
 
 enum class HandType {
     high_card = 0,
@@ -30,10 +31,10 @@ HandType get_type_from_hand_sh(uint32_t hand);
 
 std::array<Rank, 5> get_ranks_from_hand_sh(uint32_t hand);
 
-uint32_t get_hand_sh(const std::array<Card, 7>& cards);
+uint32_t get_hand_sh(const uint64_t& cards);
+bool user_is_winner(const std::array<uint64_t, 4>& pockets, uint64_t community_cards);
 
 void print_hand_sh(uint32_t mask);
 
-
-
+uint64_t get_card_ext(const std::string &card_str);
 #endif //POKER_HANDEVALUATOR_H

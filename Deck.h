@@ -51,11 +51,12 @@ struct Card {
     Rank rank; // 2,3,4,5,6,7,8,9,10,11,12,13,14
     Suit suit; // 0,1,2,3
 
+    Card(const std::string &card_sh);
     Card() = default;
 };
 
-std::string_view get_rank_name(Rank rank);
-std::string_view get_suit_name(Suit suit);
+std::string get_rank_name(Rank rank);
+std::string get_suit_name(Suit suit);
 
 std::ostream& operator<< (std::ostream& out, Rank rank);
 std::ostream& operator<< (std::ostream& out, Suit suit);
@@ -66,21 +67,16 @@ bool operator== (const Card& card1, const Card& card2);
 class Deck {
 public:
     Deck();
-    const std::array<Card, 52>& get_deck() const {
+    const uint64_t get_deck() const {
         return m_deck;
     }
-
-    const int get_len() const {
-        return m_len;
-    }
-
-    std::optional<Card> pop_card();
-    void shuffle();
-    bool is_empty() const;
-
+    uint64_t pop(int num);
+    void remove(const std::string& card_str);
+    void remove(uint64_t cards);
+    void reset();
+    int size() const;
 private:
-    std::array<Card, 52> m_deck;
-    int m_len {52};
+    uint64_t m_deck;
     std::mt19937 m_gen;
 };
 
