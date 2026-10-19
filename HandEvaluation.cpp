@@ -92,10 +92,10 @@ uint64_t get_card_ext(const std::string &card_str) {
             suit = 3;
             break;
         default:
-            throw "Couldn't create card_ext, suit not found";
+            throw std::invalid_argument("couldn't parse card");
     }
     if (rank < 2 || rank > 14) {
-        throw "Couldn't create card_ext, rank not found";
+        throw std::invalid_argument("couldn't parse card");
     }
 
     return (1ULL << rank) << suit * 16;
@@ -116,13 +116,13 @@ std::array<Rank, 5> get_ranks_from_hand_sh(const uint32_t hand) {
     return res;
 }
 
-bool user_is_winner(const std::array<uint64_t, 4>& pockets, const uint64_t community_cards) {
-    std::array<uint32_t, 4> hands_sh;
-    for (int i {}; i < pockets.size(); ++i) {
+bool user_is_winner(const std::array<uint64_t, 23>& pockets, const uint64_t community_cards, const int num_players) {
+    std::array<uint32_t, 23> hands_sh{};
+    for (int i {}; i < num_players; ++i) {
         hands_sh[i] = get_hand_sh(pockets[i] | community_cards);
     }
 
-    for (int i {1}; i < 4; ++i) {
+    for (int i {1}; i < num_players; ++i) {
         if (hands_sh[i] > hands_sh[0]) {
             return false;
         }

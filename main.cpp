@@ -4,6 +4,7 @@
 #include <iostream>
 #include <optional>
 #include <bit>
+#include <sstream>
 
 struct MCInput {
     uint64_t community_cards;
@@ -13,58 +14,83 @@ struct MCInput {
 };
 
 std::optional<MCInput> parse_input() {
+    std::string line;
+    std::getline(std::cin, line);
+    if (line.find_first_not_of(" \f\n\r\t\v") == std::string::npos) exit(0);
+
+    std::istringstream iss(line);
     uint64_t community_cards {};
     uint64_t user_cards {};
     int num_players {};
 
+    std::string token;
     bool reading_community_cards {true};
     for (int i {}; i < 5; ++i) {
-        std::string opt_community_card {};
-        std::cin >> opt_community_card;
-        if (opt_community_card == ".") {
+        if (!(iss >> token)) {
+            std::cout << "Invalid input: expected dot\n\n";
+            return std::nullopt;
+        }
+        if (token == ".") {
             reading_community_cards = false;
             break;
         }
         try {
-            community_cards |= get_card_ext(opt_community_card);
+            const uint64_t new_card {get_card_ext(token)};
+            if ((community_cards & new_card) != 0) {
+                std::cout << "Invalid input: duplicate card\n\n";
+                return std::nullopt;
+            }
+            community_cards |= new_card;
         }
         catch (std::exception& e) {
-            std::cout << "Invalid input: " << e.what() << '\n';
+            std::cout << "Invalid input: " << e.what() << "\n\n";
             return std::nullopt;
         }
     }
 
     if (reading_community_cards) {
-        char ch;
-        std::cin >> ch;
-        if (ch != '.') {
-            std::cout << "Invalid input: Dot not found";
+        if (!(iss >> token) || token != ".") {
+            std::cout << "Invalid input: expected dot\n\n";
             return std::nullopt;
         }
     }
 
     for (int i {}; i < 2; ++i) {
-        std::string user_card {};
-        std::cin >> user_card;
+        if (!(iss >> token)) {
+            std::cout << "Invalid input: expected hole card\n\n";
+            return std::nullopt;
+        }
         try {
-            user_cards |= get_card_ext(user_card);
+            const uint64_t new_card {get_card_ext(token)};
+            if ((user_cards & new_card) != 0) {
+                std::cout << "Invalid input: duplicate card\n\n";
+                return std::nullopt;
+            }
+            user_cards |= new_card;
         }
         catch (std::exception& e) {
-            std::cout << "Invalid input: " << e.what() << '\n';
+            std::cout <<  "Invalid input: " << e.what() << "\n\n";
             return std::nullopt;
         }
     }
 
-    char ch;
-    std::cin >> ch;
-    if (ch != '.') {
-        std::cout << "Invalid input: Dot not found";
+    if ((community_cards & user_cards) != 0) {
+        std::cout << "Invalid input: duplicate card\n\n";
         return std::nullopt;
     }
 
-    std::cin >> num_players;
-    if (num_players < 2) {
-        std::cout << "Invalid input: At least 2 players";
+    if (!(iss >> token) || token != ".") {
+        std::cout << "Invalid input: expected dot\n\n";
+        return std::nullopt;
+    }
+
+    if (!(iss >> num_players)) {
+        std::cout << "Invalid input: expected integer player count\n\n";
+        return std::nullopt;
+    }
+
+    if (num_players < 2 || num_players > 23) {
+        std::cout << "Invalid input: out of bounds player count\n\n";
         return std::nullopt;
     }
     return MCInput {community_cards, user_cards, num_players};
@@ -74,7 +100,7 @@ int monte_carlo(const MCInput& input) {
     int wins {};
 
     Deck deck {};
-    std::array<uint64_t, 4> pockets {input.user_cards};
+    std::array<uint64_t, 23> pockets {input.user_cards};
     uint64_t community_cards {};
     for (int i {}; i < input.num_simulations; ++i) {
         deck.reset();
@@ -89,12 +115,13 @@ int monte_carlo(const MCInput& input) {
             community_cards |= deck.pop(1);
         }
 
-        wins += user_is_winner(pockets, community_cards);
+        wins += user_is_winner(pockets, community_cards, input.num_players);
     }
     return wins;
 }
 
 int main() {
+    std::cout << "Input format: \n0-5 community cards . 2 hole cards . number of players\n\n";
     // Example inputs
     // 5d 10c 14h . 2d 7h . 4
     // 5d 10c 14h 11d 4c . 14c 3h . 4
@@ -105,6 +132,6 @@ int main() {
     }
     const int wins {monte_carlo(input.value())};
     const double win_rate {static_cast<double>(wins) / input.value().num_simulations};
-    std::cout << "Simulations: " + std::to_string(input.value().num_simulations) << "\n" << "Win rate: " << win_rate;
+    std::cout << "Simulations: " << std::to_string(input.value().num_simulations) << "\n" << "Win rate: " << win_rate;
     return 0;
 }
