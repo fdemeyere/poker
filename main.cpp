@@ -5,6 +5,7 @@
 #include <optional>
 #include <bit>
 #include <sstream>
+#include <span>
 
 struct MCInput {
     uint64_t community_cards;
@@ -96,8 +97,12 @@ std::optional<MCInput> parse_input() {
     return MCInput {community_cards, user_cards, num_players};
 }
 
-int monte_carlo(const MCInput& input) {
-    int wins {};
+uint64_t monte_carlo(const MCInput& input) {
+
+    // res: win/tie/loss counts stored by value
+    // [63-42: wins][41-21: ties][20-0: losses]
+    uint64_t res {};
+    uint64_t inter_result {};
 
     Deck deck {};
     std::array<uint64_t, 23> pockets {input.user_cards};
@@ -115,9 +120,16 @@ int monte_carlo(const MCInput& input) {
             community_cards |= deck.pop(1);
         }
 
-        wins += user_is_winner(pockets, community_cards, input.num_players);
+        inter_result = user_is_winner(std::span(pockets), community_cards, input.num_players);
+        if (inter_result == 1) {
+            res += 1ULL << 42;
+        }
+        else if (inter_result == -1) {
+            res += 1ULL;
+        }
+        else res += 1ULL << 21;
     }
-    return wins;
+    return res;
 }
 
 int main() {
@@ -130,8 +142,16 @@ int main() {
     while (!input.has_value()) {
         input = parse_input();
     }
-    const int wins {monte_carlo(input.value())};
+
+    const uint64_t mc_res {monte_carlo(input.value())};
+    const int wins {static_cast<int>((mc_res >> 42) & 0x1FFFFF)};
+    const int ties {static_cast<int>((mc_res >> 21) & 0x1FFFFF)};
+    const int losses {static_cast<int>(mc_res & 0x1FFFFF)};
+
     const double win_rate {static_cast<double>(wins) / input.value().num_simulations};
-    std::cout << "Simulations: " << std::to_string(input.value().num_simulations) << "\n" << "Win rate: " << win_rate;
+    const double tie_rate {static_cast<double>(ties) / input.value().num_simulations};
+    const double loss_rate {static_cast<double>(losses) / input.value().num_simulations};
+    std::cout << "Simulations: " << std::to_string(input.value().num_simulations) << "\n"
+        << "Win/draw/loss: " << win_rate << "/" << tie_rate << "/" << loss_rate << "\n";
     return 0;
 }

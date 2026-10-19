@@ -116,18 +116,19 @@ std::array<Rank, 5> get_ranks_from_hand_sh(const uint32_t hand) {
     return res;
 }
 
-bool user_is_winner(const std::array<uint64_t, 23>& pockets, const uint64_t community_cards, const int num_players) {
+int user_is_winner(const std::span<uint64_t, 23>& pockets, const uint64_t community_cards, const int num_players) {
     std::array<uint32_t, 23> hands_sh{};
     for (int i {}; i < num_players; ++i) {
         hands_sh[i] = get_hand_sh(pockets[i] | community_cards);
     }
 
+    bool tie {false};
     for (int i {1}; i < num_players; ++i) {
-        if (hands_sh[i] > hands_sh[0]) {
-            return false;
-        }
+        if (hands_sh[i] > hands_sh[0]) return -1;
+
+        if (hands_sh[i] == hands_sh[0]) tie = true;
     }
-    return true;
+    return tie ? 0 : 1;
 }
 
 /*  hand_sh: ranks stored by value

@@ -80,7 +80,7 @@ bool operator!=(const Card& card1, const Card& card2) {
     return card1.rank != card2.rank;
 }
 
-Deck::Deck() : m_gen {std::random_device{}()} {
+Deck::Deck() : m_deck {0ULL}, m_gen {std::random_device{}()} {
     reset();
 }
 
