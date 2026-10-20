@@ -31,7 +31,7 @@ HandType get_type_from_hand_sh(uint32_t hand);
 
 std::array<Rank, 5> get_ranks_from_hand_sh(uint32_t hand);
 
-uint32_t get_hand_sh(const uint64_t& cards);
+uint32_t get_hand_sh(uint64_t cards);
 int user_is_winner(const std::span<uint64_t, 23>& pockets, uint64_t community_cards, int num_players);
 
 void print_hand_sh(uint32_t mask);

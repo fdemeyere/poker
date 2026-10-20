@@ -11,23 +11,23 @@
 #include <charconv>
 
 namespace {
-    uint16_t hearts(const uint64_t mask) {
+    constexpr uint16_t hearts(uint64_t mask) {
         return (mask >> 16) & 0xFFFF;
     }
 
-    uint16_t clubs(const uint64_t mask){
+    constexpr uint16_t clubs(uint64_t mask){
         return (mask >> 32) & 0xFFFF;
     }
 
-    uint16_t diamonds(const uint64_t mask){
+    constexpr uint16_t diamonds(uint64_t mask){
         return (mask >> 48) & 0xFFFF;
     }
 
-    uint16_t spades(const uint64_t mask) {
+    constexpr uint16_t spades(uint64_t mask) {
         return mask & 0xFFFF;
     }
 
-    void print_hand_ext(const uint64_t mask) {
+    void print_hand_ext(uint64_t mask) {
         std::cout << "Diamonds: " << std::bitset<16>(diamonds(mask)) << "\n"
                   << "Clubs:    " << std::bitset<16>(clubs(mask)) << "\n"
                   << "Hearts:   " << std::bitset<16>(hearts(mask)) << "\n"
@@ -74,39 +74,61 @@ void print_hand_sh(const uint32_t mask) {
 }
 
 uint64_t get_card_ext(const std::string &card_str) {
-    uint16_t rank {};
-    uint16_t suit {};
-
-    auto [ptr, ec] = std::from_chars(card_str.data(), card_str.data() + card_str.size(), rank);
-    switch (*ptr) {
-        case 's':
-            suit = 0;
-            break;
-        case 'h':
-            suit = 1;
-            break;
-        case 'c':
-            suit = 2;
-            break;
-        case 'd':
-            suit = 3;
-            break;
-        default:
-            throw std::invalid_argument("couldn't parse card");
-    }
-    if (rank < 2 || rank > 14) {
+    if (card_str.size() != 2) {
         throw std::invalid_argument("couldn't parse card");
     }
+    int rank {};
+    int suit {};
+    if (card_str.at(0) > '0' && card_str.at(0) < '9') {
+        rank = card_str.at(0) - '0';
+    }
+    else {
+        switch (card_str.at(0)) {
+            case 'A':
+                rank = 14;
+                break;
+            case 'K':
+                rank = 13;
+                break;
+            case 'Q':
+                rank = 12;
+                break;
+            case 'J':
+                rank = 11;
+                break;
+            case 'T':
+                rank = 10;
+                break;
+            default:
+                throw std::invalid_argument("couldn't parse card");
+        }
+    }
 
+    switch (card_str.at(1)) {
+            case 's':
+                suit = 0;
+                break;
+            case 'h':
+                suit = 1;
+                break;
+            case 'c':
+                suit = 2;
+                break;
+            case 'd':
+                suit = 3;
+                break;
+            default:
+                throw std::invalid_argument("couldn't parse card");
+        }
     return (1ULL << rank) << suit * 16;
 }
 
 // function taking in a 32 bit hand representation and returning just the HandType
-HandType get_type_from_hand_sh(const uint32_t hand) {
+HandType get_type_from_hand_sh(uint32_t hand) {
     return static_cast<HandType>(hand >> 20);
 }
 
-std::array<Rank, 5> get_ranks_from_hand_sh(const uint32_t hand) {
+std::array<Rank, 5> get_ranks_from_hand_sh(uint32_t hand) {
     std::array<Rank, 5> res{};
     res[0] = static_cast<Rank>((hand >> 16) & 0xF);
     res[1] = static_cast<Rank>((hand >> 12) & 0xF);
@@ -116,17 +138,15 @@ std::array<Rank, 5> get_ranks_from_hand_sh(const uint32_t hand) {
     return res;
 }
 
-int user_is_winner(const std::span<uint64_t, 23>& pockets, const uint64_t community_cards, const int num_players) {
-    std::array<uint32_t, 23> hands_sh{};
-    for (int i {}; i < num_players; ++i) {
-        hands_sh[i] = get_hand_sh(pockets[i] | community_cards);
-    }
+int user_is_winner(const std::span<uint64_t, 23>& pockets, uint64_t community_cards, int num_players) {
+    const uint32_t user_hand_sh = get_hand_sh(pockets[0] | community_cards);
 
     bool tie {false};
     for (int i {1}; i < num_players; ++i) {
-        if (hands_sh[i] > hands_sh[0]) return -1;
+        const uint32_t opp_hand_sh {get_hand_sh(pockets[i] | community_cards)};
+        if (opp_hand_sh > user_hand_sh) return -1;
 
-        if (hands_sh[i] == hands_sh[0]) tie = true;
+        if (opp_hand_sh == user_hand_sh) tie = true;
     }
     return tie ? 0 : 1;
 }
@@ -134,7 +154,7 @@ int user_is_winner(const std::span<uint64_t, 23>& pockets, const uint64_t commun
 /*  hand_sh: ranks stored by value
     [31-20 = HandType 0-9][19-16 = 1st rank][15-12 = 2nd rank][11-8 = 3rd rank][7-4 = 4th rank][3-0 = 5th rank]
 */
-uint32_t get_hand_sh(const uint64_t& cards) {
+uint32_t get_hand_sh(uint64_t cards) {
 
     const uint16_t s {spades(cards)};
     const uint16_t h {hearts(cards)};
@@ -220,7 +240,7 @@ uint32_t get_hand_sh(const uint64_t& cards) {
     }
 
     // full house
-    if (trips && pairs) {
+    if (std::popcount(trips) == 2 || trips && pairs) {
         uint32_t res {6U << 20};
 
         const uint16_t highest_trip = std::bit_width(trips) - 1;
@@ -233,6 +253,7 @@ uint32_t get_hand_sh(const uint64_t& cards) {
             for (int j {}; j < 2; ++j) {
                 res |= (second_highest_trip << (4 - 4*j));
             }
+            return res;
         }
 
         const uint16_t pair_rank = std::bit_width(pairs) - 1;
