@@ -80,41 +80,36 @@ bool operator!=(const Card& card1, const Card& card2) {
     return card1.rank != card2.rank;
 }
 
-Deck::Deck() : m_deck {0ULL}, m_gen {std::random_device{}()} {
-    reset();
+Deck::Deck(uint64_t starting_cards) : m_cards {}, m_starting_cards {}, m_size {}, m_starting_size {}, m_gen {std::random_device{}()} {
+    for (int i {}; i < 4; ++i) {
+        for (int j {2}; j < 15; ++j) {
+            uint64_t card = 1ULL << (i*16 + j);
+            if (starting_cards & card)
+                m_starting_cards[m_starting_size++] = card;
+        }
+    }
+    m_cards = m_starting_cards;
+    m_size = m_starting_size;
 }
 
-uint64_t Deck::pop(const int num) {
+uint64_t Deck::pop(int num) {
     uint64_t res {};
     for (int i {}; i < num; ++i) {
-        std::uniform_int_distribution<> distrib(1, size());
-        const int count { distrib(m_gen)};
-        uint64_t deck_copy {m_deck};
+        std::uniform_int_distribution<> distrib(0, m_size - 1);
+        const int index {distrib(m_gen)};
+        const uint64_t card {m_cards[index]};
+        m_cards[index] = m_cards[--m_size];
 
-        for (int j {}; j < count - 1; ++j) {
-            deck_copy &= deck_copy - 1;
-        }
-
-        const uint64_t card = deck_copy & ~deck_copy + 1;
-        m_deck ^= card;
         res |= card;
     }
     return res;
 }
 
-void Deck::remove(const std::string& card_str) {
-    const uint64_t card {get_card_ext(card_str)};
-    m_deck ^= card;
-}
-
-void Deck::remove(const uint64_t cards) {
-    m_deck ^= cards;
-}
-
 void Deck::reset() {
-    m_deck = 0x7FFC7FFC7FFC7FFCULL;
+    m_size = m_starting_size;
+    m_cards = m_starting_cards;
 }
 
 int Deck::size() const {
-    return std::popcount(m_deck);
+    return m_size;
 }

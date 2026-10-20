@@ -66,17 +66,15 @@ bool operator== (const Card& card1, const Card& card2);
 
 class Deck {
 public:
-    Deck();
-    const uint64_t get_deck() const {
-        return m_deck;
-    }
+    Deck(uint64_t starting_cards);
     uint64_t pop(int num);
-    void remove(const std::string& card_str);
-    void remove(uint64_t cards);
     void reset();
     int size() const;
 private:
-    uint64_t m_deck;
+    std::array<uint64_t, 52> m_cards;
+    std::array<uint64_t, 52> m_starting_cards;
+    int m_size;
+    int m_starting_size;
     std::mt19937 m_gen;
 };
 
