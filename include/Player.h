@@ -10,9 +10,10 @@
 
 class Player {
 public:
-    Player() = default;
     Player(const Card& c1, const Card& c2);
+    Player() = default;
     void give_cards(const Card& c1, const Card& c2);
+    std::array<Card, 2> get_cards() const;
 private:
     std::array<Card, 2> m_cards {};
 };

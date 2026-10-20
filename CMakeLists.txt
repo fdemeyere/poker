@@ -13,25 +13,32 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+        googlebenchmark
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG main
+)
+FetchContent_MakeAvailable(googlebenchmark)
 
 enable_testing()
 
-add_executable(poker main.cpp
-        Deck.cpp
-        Deck.h
-        HandEvaluation.cpp
-        HandEvaluation.h
+add_executable(poker src/main.cpp
+        src/Deck.cpp
+        src/HandEvaluation.cpp
+        src/MonteCarlo.cpp
+        src/InputParser.cpp
 )
 
+target_include_directories(poker PUBLIC include)
+
 add_executable(HandEvaluation_test
-        HandEvaluation_test.cpp
-        Deck.cpp
-        Deck.h
-        HandEvaluation.cpp
-        HandEvaluation.h
-        Player.cpp
-        Player.h
+        tests/HandEvaluation_test.cpp
+        src/Deck.cpp
+        src/HandEvaluation.cpp
 )
+
+target_include_directories(HandEvaluation_test PUBLIC include)
 
 target_link_libraries(
         HandEvaluation_test
@@ -40,3 +47,20 @@ target_link_libraries(
 
 include(GoogleTest)
 gtest_discover_tests(HandEvaluation_test)
+
+add_executable(HandEvaluation_benchmark
+        benchmarks/HandEvaluation_benchmark.cpp
+        src/Deck.cpp
+        src/HandEvaluation.cpp
+        benchmarks/HandEvaluation_benchmark.cpp
+        src/MonteCarlo.cpp
+        src/InputParser.cpp
+)
+
+target_include_directories(HandEvaluation_benchmark PUBLIC include)
+
+target_link_libraries(
+        HandEvaluation_benchmark
+        PRIVATE
+        benchmark::benchmark_main
+)

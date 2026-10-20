@@ -1,5 +1,5 @@
-#include "Deck.h"
-#include "HandEvaluation.h"
+#include "../include/Deck.h"
+#include "../include/HandEvaluation.h"
 #include <gtest/gtest.h>
 
 const std::array<Card, 7> royal_flush {
