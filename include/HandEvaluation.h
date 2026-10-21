@@ -1,6 +1,3 @@
-//
-// Created by legen on 2026-10-13.
-//
 
 #ifndef POKER_HANDEVALUATOR_H
 #define POKER_HANDEVALUATOR_H
@@ -9,6 +6,7 @@
 #include <ostream>
 #include <cinttypes>
 #include <span>
+#include <optional>
 
 enum class HandType {
     high_card = 0,
@@ -36,5 +34,7 @@ int user_is_winner(const std::span<uint64_t, 23>& pockets, uint64_t community_ca
 
 void print_hand_sh(uint32_t mask);
 
-uint64_t get_card_ext(const std::string &card_str);
+std::optional<uint64_t> get_card_ext(const std::string &card_str);
+
+uint64_t get_cards_ext(const std::array<Card, 7>& cards);
 #endif //POKER_HANDEVALUATOR_H

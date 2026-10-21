@@ -1,13 +1,10 @@
-// //
-// // Created by legen on 2026-10-13.
-// //
-//
 #include "HandEvaluation.h"
 #include "Deck.h"
 #include <iostream>
 #include <string_view>
 #include <bit>
 #include <bitset>
+#include <optional>
 
 
 namespace {
@@ -34,15 +31,16 @@ namespace {
                   << "Spades:   " << std::bitset<16>(spades(mask)) << "\n";
     }
 
-    // hand_ext format: ranks stored by index
-    // [64-48 = diamonds] [47-32 = clubs] [31-16 = hearts] [15-0 = spades]
-    uint64_t get_cards_ext(const std::array<Card, 7>& cards) {
-        uint64_t mask {};
-        for (const Card& card : cards) {
-            mask |= 1ULL << (static_cast<int>(card.suit) * 16 + static_cast<int>(card.rank));
-        }
-        return mask;
+}
+
+// hand_ext format: ranks stored by index
+// [64-48 = diamonds] [47-32 = clubs] [31-16 = hearts] [15-0 = spades]
+uint64_t get_cards_ext(const std::array<Card, 7>& cards) {
+    uint64_t mask {};
+    for (const Card& card : cards) {
+        mask |= 1ULL << (static_cast<int>(card.suit) * 16 + static_cast<int>(card.rank));
     }
+    return mask;
 }
 
 std::string_view get_hand_type_str(const HandType type) {
@@ -73,13 +71,13 @@ void print_hand_sh(const uint32_t mask) {
     std::cout << "32 bit hand repr: " << std::bitset<32>(mask) << "\n";
 }
 
-uint64_t get_card_ext(const std::string &card_str) {
+std::optional<uint64_t> get_card_ext(const std::string &card_str) {
     if (card_str.size() != 2) {
-        throw std::invalid_argument("couldn't parse card");
+        return std::nullopt;
     }
     int rank {};
     int suit {};
-    if (card_str.at(0) > '0' && card_str.at(0) < '9') {
+    if (card_str.at(0) >= '2' && card_str.at(0) <= '9') {
         rank = card_str.at(0) - '0';
     }
     else {
@@ -100,7 +98,7 @@ uint64_t get_card_ext(const std::string &card_str) {
                 rank = 10;
                 break;
             default:
-                throw std::invalid_argument("couldn't parse card");
+                return std::nullopt;
         }
     }
 
@@ -117,8 +115,8 @@ uint64_t get_card_ext(const std::string &card_str) {
             case 'd':
                 suit = 3;
                 break;
-            default:
-                throw std::invalid_argument("couldn't parse card");
+        default:
+                return std::nullopt;
         }
     return (1ULL << rank) << suit * 16;
 }

@@ -1,6 +1,3 @@
-//
-// Created by legen on 2026-10-12.
-//
 
 #ifndef POKER_DECK_H
 #define POKER_DECK_H
@@ -70,9 +67,11 @@ public:
     uint64_t pop(int num);
     void reset();
     int size() const;
+    void remove(uint64_t card);
 private:
     std::array<uint64_t, 52> m_cards;
     std::array<uint64_t, 52> m_starting_cards;
+    uint64_t m_dead_cards;
     int m_size;
     int m_starting_size;
     std::mt19937 m_gen;

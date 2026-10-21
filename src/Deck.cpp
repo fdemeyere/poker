@@ -1,6 +1,3 @@
-//
-// Created by legen on 2026-10-12.
-//
 
 #include "Deck.h"
 #include "HandEvaluation.h"
@@ -80,25 +77,28 @@ bool operator!=(const Card& card1, const Card& card2) {
     return card1.rank != card2.rank;
 }
 
-Deck::Deck(uint64_t starting_cards) : m_cards {}, m_starting_cards {}, m_size {}, m_starting_size {}, m_gen {std::random_device{}()} {
+Deck::Deck(uint64_t starting_cards) : m_cards {}, m_dead_cards {}, m_size {}, m_starting_size {}, m_gen {std::random_device{}()} {
     for (int i {}; i < 4; ++i) {
         for (int j {2}; j < 15; ++j) {
             uint64_t card = 1ULL << (i*16 + j);
             if (starting_cards & card)
-                m_starting_cards[m_starting_size++] = card;
+                m_cards[m_starting_size++] = card;
         }
     }
-    m_cards = m_starting_cards;
     m_size = m_starting_size;
 }
 
 uint64_t Deck::pop(int num) {
     uint64_t res {};
+
     for (int i {}; i < num; ++i) {
         std::uniform_int_distribution<> distrib(0, m_size - 1);
-        const int index {distrib(m_gen)};
+        int index {distrib(m_gen)};
+        while (m_dead_cards & m_cards[index]) {
+            index = distrib(m_gen);
+        }
         const uint64_t card {m_cards[index]};
-        m_cards[index] = m_cards[--m_size];
+        std::swap(m_cards[index], m_cards[--m_size]);
 
         res |= card;
     }
@@ -107,9 +107,13 @@ uint64_t Deck::pop(int num) {
 
 void Deck::reset() {
     m_size = m_starting_size;
-    m_cards = m_starting_cards;
+    m_dead_cards = 0ULL;
 }
 
 int Deck::size() const {
     return m_size;
+}
+
+void Deck::remove(uint64_t cards) {
+    m_dead_cards |= cards;
 }
