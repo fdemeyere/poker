@@ -1,5 +1,5 @@
-#include "../include/Deck.h"
-#include "../include/HandEvaluation.h"
+#include "Deck.h"
+#include "HandEvaluation.h"
 #include <gtest/gtest.h>
 
 const std::array<Card, 7> royal_flush {
@@ -89,7 +89,7 @@ const std::array<Card, 7> double_three_full_house {
 
 
 TEST(HandEvaluationTest, HandEvaluator_RoyalFlush_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(royal_flush);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(royal_flush));
     EXPECT_EQ(HandType::royal_flush, static_cast<HandType>(hand_sh >> 20));
 
     std::array<Rank, 5> found_ranks = get_ranks_from_hand_sh(hand_sh);
@@ -99,7 +99,7 @@ TEST(HandEvaluationTest, HandEvaluator_RoyalFlush_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_StraightFlush_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(straight_flush);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(straight_flush));
     EXPECT_EQ(HandType::straight_flush, static_cast<HandType>(hand_sh >> 20));
 
     std::array<Rank, 5> found_ranks = get_ranks_from_hand_sh(hand_sh);
@@ -109,7 +109,7 @@ TEST(HandEvaluationTest, HandEvaluator_StraightFlush_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_FourOfAKind_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(four_of_a_kind);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(four_of_a_kind));
     EXPECT_EQ(HandType::four_of_a_kind, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -120,7 +120,7 @@ TEST(HandEvaluationTest, HandEvaluator_FourOfAKind_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_FullHouse_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(full_house);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(full_house));
     EXPECT_EQ(HandType::full_house, static_cast<HandType>(hand_sh >> 20));
 
     std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -130,7 +130,7 @@ TEST(HandEvaluationTest, HandEvaluator_FullHouse_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_Flush_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(flush);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(flush));
     EXPECT_EQ(HandType::flush, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -140,7 +140,7 @@ TEST(HandEvaluationTest, HandEvaluator_Flush_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_Straight_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(straight);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(straight));
     EXPECT_EQ(HandType::straight, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -150,7 +150,7 @@ TEST(HandEvaluationTest, HandEvaluator_Straight_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_ThreeOfAKind_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(three_of_a_kind);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(three_of_a_kind));
     EXPECT_EQ(HandType::three_of_a_kind, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -160,7 +160,7 @@ TEST(HandEvaluationTest, HandEvaluator_ThreeOfAKind_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_TwoPair_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(two_pair);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(two_pair));
     EXPECT_EQ(HandType::two_pair, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -170,7 +170,7 @@ TEST(HandEvaluationTest, HandEvaluator_TwoPair_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_OnePair_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(one_pair);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(one_pair));
     EXPECT_EQ(HandType::one_pair, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -180,7 +180,7 @@ TEST(HandEvaluationTest, HandEvaluator_OnePair_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_HighCard_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(high_card);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(high_card));
     EXPECT_EQ(HandType::high_card, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -190,7 +190,7 @@ TEST(HandEvaluationTest, HandEvaluator_HighCard_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_AceLowStraightFlush_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(ace_low_straight_flush);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(ace_low_straight_flush));
     EXPECT_EQ(HandType::straight_flush, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};
@@ -200,7 +200,7 @@ TEST(HandEvaluationTest, HandEvaluator_AceLowStraightFlush_CorrectHandSh) {
 }
 
 TEST(HandEvaluationTest, HandEvaluator_DoubleThreeFullHouse_CorrectHandSh) {
-    const uint32_t hand_sh = get_hand_sh(double_three_full_house);
+    const uint32_t hand_sh = get_hand_sh(get_cards_ext(double_three_full_house));
     EXPECT_EQ(HandType::full_house, static_cast<HandType>(hand_sh >> 20));
 
     const std::array<Rank, 5> found_ranks {get_ranks_from_hand_sh(hand_sh)};

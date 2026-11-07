@@ -6,6 +6,7 @@ namespace Config {
     constexpr int max_player_count {23};
     constexpr int min_player_count {2};
     constexpr int community_card_count {5};
+    constexpr uint64_t bit_deck {0x7FFC7FFC7FFC7FFCULL};
 }
 
 

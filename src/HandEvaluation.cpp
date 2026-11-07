@@ -71,7 +71,7 @@ void print_hand_sh(const uint32_t mask) {
     std::cout << "32 bit hand repr: " << std::bitset<32>(mask) << "\n";
 }
 
-std::optional<uint64_t> get_card_ext(const std::string &card_str) {
+std::optional<uint64_t> get_card_ext(const std::string& card_str) {
     if (card_str.size() != 2) {
         return std::nullopt;
     }

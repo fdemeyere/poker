@@ -48,7 +48,7 @@ struct Card {
     Rank rank; // 2,3,4,5,6,7,8,9,10,11,12,13,14
     Suit suit; // 0,1,2,3
 
-    Card(const std::string &card_sh);
+    Card(const std::string& card_sh);
     Card() = default;
 };
 

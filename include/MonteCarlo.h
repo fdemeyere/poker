@@ -19,6 +19,6 @@ struct MCResult {
     int losses;
 };
 
-MCResult monte_carlo(MCInput& input);
+MCResult monte_carlo(const MCInput& input);
 
 #endif //POKER_MONTECARLO_H

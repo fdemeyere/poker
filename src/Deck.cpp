@@ -77,6 +77,8 @@ bool operator!=(const Card& card1, const Card& card2) {
     return card1.rank != card2.rank;
 }
 
+Card::Card(Suit suit, Rank rank) : suit {suit}, rank {rank} {}
+
 Deck::Deck(uint64_t starting_cards) : m_cards {}, m_dead_cards {}, m_size {}, m_starting_size {}, m_gen {std::random_device{}()} {
     for (int i {}; i < 4; ++i) {
         for (int j {2}; j < 15; ++j) {

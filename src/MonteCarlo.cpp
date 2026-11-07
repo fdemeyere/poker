@@ -7,14 +7,14 @@
 #include <iostream>
 
 
-MCResult monte_carlo(MCInput& input) {
+MCResult monte_carlo(const MCInput& input) {
     MCResult res {0, 0, 0};
 
     std::array<uint64_t, Config::max_player_count> pockets {input.user_cards};
     uint64_t community_cards {};
 
     const uint64_t in_use_cards {input.user_cards | input.community_cards};
-    Deck deck {0x7FFC7FFC7FFC7FFCULL ^ in_use_cards};
+    Deck deck {Config::bit_deck ^ in_use_cards};
 
     std::vector<uint64_t> valid_opp_pockets {};
     for (uint64_t cards : input.opponent_cards_range) {
